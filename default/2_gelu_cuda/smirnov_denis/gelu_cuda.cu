@@ -7,20 +7,31 @@
 
 #include "gelu_cuda.h"
 
-__global__ void vecGelu(float* X, float* Y, size_t n) {
-    int workIndex = threadIdx.x + blockDim.x * blockIdx.x;
-    if (workIndex < n) {
-        float inner = 0.79788456f * X[workIndex] * (1.f + 0.044715f * X[workIndex] * X[workIndex]);
-        Y[workIndex] = 0.5f * X[workIndex] * (1.f + tanhf(inner));
+__global__ void vecGelu(const float* X, float* Y, size_t n) {
+    int idx = threadIdx.x + blockDim.x * blockIdx.x;
+    if (idx < n) {
+        float x = X[idx];
+        float inner = 0.79788456f * x * (1.f + 0.044715f * x * x);
+        Y[idx] = 0.5f * x * (1.f + tanhf(inner));
+    }
+}
+
+__global__ void vecGelu4(const float* X, float* Y, size_t n) {
+    int idx = threadIdx.x + blockDim.x * blockIdx.x;
+    if (idx < n) {
+        const float4* X4 = reinterpret_cast<const float4*>(X);
+        float4* Y4 = reinterpret_cast<float4*>(Y);
+        float4 x = X4[idx], y;
+        y.x = 0.5f * x.x * (1.f + tanhf(0.79788456f * x.x * (1.f + 0.044715f * x.x * x.x)));
+        y.y = 0.5f * x.y * (1.f + tanhf(0.79788456f * x.y * (1.f + 0.044715f * x.y * x.y)));
+        y.z = 0.5f * x.z * (1.f + tanhf(0.79788456f * x.z * (1.f + 0.044715f * x.z * x.z)));
+        y.w = 0.5f * x.w * (1.f + tanhf(0.79788456f * x.w * (1.f + 0.044715f * x.w * x.w)));
+        Y4[idx] = y;
     }
 }
 
 std::vector<float> GeluCUDA(const std::vector<float>& input) {
     size_t n = input.size();
-    std::vector<float> output(n);
-
-    const float* inptr = input.data();
-    float* outptr = output.data();
 
     float* X = nullptr;
     float* Y = nullptr;
@@ -28,14 +39,19 @@ std::vector<float> GeluCUDA(const std::vector<float>& input) {
     cudaMalloc(&X, n * sizeof(float));
     cudaMalloc(&Y, n * sizeof(float));
     
-    cudaMemcpy(X, inptr, n * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(X, input.data(), n * sizeof(float), cudaMemcpyHostToDevice);
     
     size_t threads = 256;
-    size_t blocks = (n + threads - 1) / threads;
-    vecGelu<<<blocks, threads>>>(X, Y, n);
-    cudaDeviceSynchronize();
+    if (n % 4 == 0) {
+        size_t blocks = (n / 4 + threads - 1) / threads;
+        vecGelu4<<<blocks, threads>>>(X, Y, n);
+    } else {
+        size_t blocks = (n + threads - 1) / threads;
+        vecGelu<<<blocks, threads>>>(X, Y, n);
+    }
 
-    cudaMemcpy(outptr, Y, n * sizeof(float), cudaMemcpyDeviceToHost);
+    std::vector<float> output(n);
+    cudaMemcpy(output.data(), Y, n * sizeof(float), cudaMemcpyDeviceToHost);
 
     cudaFree(X);
     cudaFree(Y);
@@ -87,7 +103,7 @@ int main() {
         time_list.push_back(duration.count());
     }
     double time = *std::min_element(time_list.begin(), time_list.end());
-    printf("time = %.2f\n", time);
+    printf("time = %.4f\n", time);
 
     return 0;
 }
