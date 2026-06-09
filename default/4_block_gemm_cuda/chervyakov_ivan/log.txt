@@ -1,0 +1,5 @@
+/home/crazyproger/sandbox/cuda-ai-2026/default/4_block_gemm_cuda/chervyakov_ivan/block_gemm_cuda.cu(75): error: name followed by "::" must be a class or namespace name
+      int blocksNum = cuda::ceil_div(n, blockSize);
+                      ^
+
+1 error detected in the compilation of "/home/crazyproger/sandbox/cuda-ai-2026/default/4_block_gemm_cuda/chervyakov_ivan/block_gemm_cuda.cu".
