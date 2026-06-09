@@ -11,32 +11,33 @@
 
 __global__ void blockMultKernel(const float* A, const float* B, float* C, int N)
 {
-    __shared__ float blkA[BLOCK_SIZE][BLOCK_SIZE];
-    __shared__ float blkB[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ float blkA[BLOCK_SIZE*BLOCK_SIZE];
+    __shared__ float blkB[BLOCK_SIZE*BLOCK_SIZE];
 
-    int row = blockIdx.y * BLOCK_SIZE + threadIdx.y;
-    int col = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+    int local_row = threadIdx.y;
+    int local_col = threadIdx.x;
+
+    int global_row = blockIdx.y * blockDim.y + threadIdx.y;
+    int global_col = blockIdx.x * blockDim.x + threadIdx.x;
 
     float sum = 0.0f;
-    const int dim = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
-    for (int b = 0; b < dim; ++b)
+    for (int block = 0; block < gridDim.x; ++block)
     {
-        int a_col = b * BLOCK_SIZE + threadIdx.x;
-        int b_row = b * BLOCK_SIZE + threadIdx.y;
-
-        blkA[threadIdx.y][threadIdx.x] = A[row * N + a_col];
-        blkB[threadIdx.y][threadIdx.x] = B[b_row * N + col];
+        blkA[local_row*BLOCK_SIZE+local_col] = A[global_row*N+(block*BLOCK_SIZE+local_col)];
+        blkB[local_row*BLOCK_SIZE+local_col] = B[(block*BLOCK_SIZE+local_row)*N+global_col];
 
         __syncthreads();
 
         for (int i = 0; i < BLOCK_SIZE; ++i)
         {
-            sum += blkA[threadIdx.y][i] * blkB[i][threadIdx.x];
+            sum += blkA[local_row*BLOCK_SIZE+i] * blkB[i*BLOCK_SIZE+local_col];
         }
+
+        __syncthreads();
     }
 
-    C[row * N + col] = sum;
+    C[global_row*N+global_col] = sum;
 }
 
 std::vector<float> BlockGemmCUDA(const std::vector<float>& a,
@@ -60,12 +61,13 @@ std::vector<float> BlockGemmCUDA(const std::vector<float>& a,
     cudaMemcpy(d_a, in_a, bytes, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, in_b, bytes, cudaMemcpyHostToDevice);
 
-    int size = (n+BLOCK_SIZE-1)/BLOCK_SIZE;
+    //dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
+    //dim3 dimGrid(size, size);
 
-    dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-    dim3 dimGrid(size, size);
+    dim3 block_count(n/BLOCK_SIZE, n/BLOCK_SIZE);
+    dim3 block_size(BLOCK_SIZE, BLOCK_SIZE);
 
-    blockMultKernel<<<dimGrid, dimBlock>>>(d_a, d_b, d_c, n);
+    blockMultKernel<<<block_count, block_size>>>(d_a, d_b, d_c, n);
     cudaDeviceSynchronize();
 
     cudaMemcpy(out_c, d_c, bytes, cudaMemcpyDeviceToHost);
