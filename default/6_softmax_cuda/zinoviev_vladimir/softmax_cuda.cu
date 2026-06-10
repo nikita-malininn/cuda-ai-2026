@@ -8,6 +8,36 @@
 
 #define BLOCK_SIZE 256
 
+__device__ float reduce_max(float value, float* buffer) {
+    buffer[threadIdx.x] = value;
+    __syncthreads();
+
+    for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (threadIdx.x < s) {
+            float left = buffer[threadIdx.x];
+            float right = buffer[threadIdx.x + s];
+            buffer[threadIdx.x] = (left < right ? right : left);
+        }
+        __syncthreads();
+    }
+
+    return buffer[0];
+}
+
+__device__ float reduce_sum(float value, float* buffer) {
+    buffer[threadIdx.x] = value;
+    __syncthreads();
+
+    for (unsigned s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (threadIdx.x < s) {
+            buffer[threadIdx.x] += buffer[threadIdx.x + s];
+        }
+        __syncthreads();
+    }
+
+    return buffer[0];
+}
+
 __device__ inline void merge(float max_a, float sum_a,
                              float max_b, float sum_b,
                              volatile float& out_max, volatile float& out_sum) {
