@@ -423,6 +423,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|chervyakov_ivan|0.1709|9|
 |default|chekmaryov_petr|0.1765|12|
 |default|smirnov_denis|0.1770|1|
+|default|novozhilov_mikhail|0.1803|13|
 |**REF**|**REF**|**0.1864**|**-**|
 |default|pinegina_natalia|0.2180|7|
 |default|lukicheva_polina|0.2290|4|
@@ -496,10 +497,10 @@ One may use numba or C strings to write CUDA kernels.
 |default|korobeynikov_aleksey|1/7|40|
 |default|kryukov_dmitry|0/7|0|
 |default|lobanova_elizaveta|5/7|294|
-|default|lukicheva_polina|2/7|94|
-|default|novozhilov_mikhail|1/7|45|
+|default|lukicheva_polina|2/7|93|
+|default|novozhilov_mikhail|2/7|87|
 |default|pigasin_dmitry|1/7|46|
-|default|pinegina_natalia|5/7|252|
+|default|pinegina_natalia|5/7|251|
 |default|pisarevsky_vadim|5/7|296|
 |default|smirnov_denis|6/7|357|
 |default|vikhrev_ivan|3/7|149|
