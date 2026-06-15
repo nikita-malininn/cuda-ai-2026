@@ -46,7 +46,7 @@ __global__ void vecSoftmax(const float* X, float* Y, int nrows, int ncols) {
         t_max = new_max;
     }
 
-    __shared__ float wmax[WARP_SIZE], wsum[WARP_SIZE];
+    __shared__ float wmax[NUM_WARPS], wsum[NUM_WARPS];
     int lane = tid & (WARP_SIZE - 1), wid = tid / WARP_SIZE;
 
     warp_reduce(t_max, t_sum);
