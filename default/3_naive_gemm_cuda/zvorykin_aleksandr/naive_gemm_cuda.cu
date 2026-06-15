@@ -2,13 +2,13 @@
 
 #include <cuda_runtime.h>
 
+// CUDA constants
+constexpr int s_TileSize = 32;
+constexpr int s_VectorWidth = 4;
+
 // Anonymous namespace
 namespace
-{
-    // CUDA constants
-    constexpr int s_TileSize = 32;
-    constexpr int s_VectorWidth = 4;
-    
+{    
     __global__ void OptimizedGemm(const float *a, const float *b, float *c, int n) 
     {
         __shared__ float tileA[s_TileSize][s_TileSize];
@@ -93,7 +93,12 @@ std::vector<float> NaiveGemmCUDA(const std::vector<float>& a,
     cudaMemcpy(devA, aData, dataSize * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(devB, bData, dataSize * sizeof(float), cudaMemcpyHostToDevice);
 
-    dim3 threadsPerBlock(8, 8);
+    constexpr int THREADS_X = s_TileSize / s_VectorWidth; // 8
+    constexpr int THREADS_Y = s_TileSize;                // 32
+
+    dim3 threadsPerBlock(THREADS_X, THREADS_Y);
+    dim3 blockCount( (n + s_TileSize - 1) / s_TileSize,
+                    (n + s_TileSize - 1) / s_TileSize );
     dim3 blockCount((n / s_VectorWidth + s_TileSize - 1) / s_TileSize, 
                     (n + s_TileSize - 1) / s_TileSize);
     
