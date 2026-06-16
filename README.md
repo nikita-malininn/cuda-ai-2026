@@ -499,7 +499,7 @@ One may use numba or C strings to write CUDA kernels.
 |-----|----|------|----|
 |default|zinoviev_vladimir|0.1030|2|
 |**REF**|**REF**|**0.1930**|**-**|
-|default|smirnov_denis|0.2110|1|
+|default|smirnov_denis|0.2060|1|
 
 # Tasks Done
 ## default
