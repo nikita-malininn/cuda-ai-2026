@@ -488,7 +488,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|smirnov_denis|0.1727|1|
 |default|znamenskiy_mikhail|0.1810|3|
 |**REF**|**REF**|**0.1814**|**-**|
-|default|pinegina_natalia|TEST FAILED|-|
+|default|pinegina_natalia|0.1931|4|
 |default|zemskov_roman|TEST FAILED|-|
 
 ## 7_layernorm_pycuda (8192x16384 elements)
@@ -512,7 +512,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|lukicheva_polina|2/7|89|
 |default|novozhilov_mikhail|2/7|84|
 |default|pigasin_dmitry|2/7|89|
-|default|pinegina_natalia|5/7|244|
+|default|pinegina_natalia|6/7|302|
 |default|pisarevsky_vadim|5/7|296|
 |default|rodygin_vadim|3/7|135|
 |default|smirnov_denis|**7/7**|**417**|
