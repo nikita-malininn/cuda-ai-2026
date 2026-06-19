@@ -1,6 +1,7 @@
 #include "naive_gemm_cuda.h"
 
 #include <cuda_runtime.h>
+#include <cstdint>
 
 // CUDA constants
 constexpr int s_TileSize = 32;
@@ -79,30 +80,25 @@ std::vector<float> NaiveGemmCUDA(const std::vector<float>& a,
 {
     // Place your implementation here
     
-    const float* aData = a.data();
-    const float* bData = b.data();
-    const int dataSize = n * n;
+    size_t dataSize = static_cast<size_t>(n) * n;
 
-    float* devA = nullptr;
+    float *devA = nullptr;
     cudaMalloc(&devA, dataSize * sizeof(float));
-    float* devB = nullptr;
+    
+    float *devB = nullptr;
     cudaMalloc(&devB, dataSize * sizeof(float));
-    float* devC = nullptr;
+    
+    float *devC = nullptr;
     cudaMalloc(&devC, dataSize * sizeof(float));
 
-    cudaMemcpy(devA, aData, dataSize * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(devB, bData, dataSize * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(devA, a.data(), dataSize * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(devB, b.data(), dataSize * sizeof(float), cudaMemcpyHostToDevice);
 
-    constexpr int THREADS_X = s_TileSize / s_VectorWidth; // 8
-    constexpr int THREADS_Y = s_TileSize;                // 32
-
-    dim3 threadsPerBlock(THREADS_X, THREADS_Y);
-    dim3 blockCount( (n + s_TileSize - 1) / s_TileSize,
-                    (n + s_TileSize - 1) / s_TileSize );
-    dim3 blockCount((n / s_VectorWidth + s_TileSize - 1) / s_TileSize, 
-                    (n + s_TileSize - 1) / s_TileSize);
-    
-    OptimizedGemm<<<blockCount, threadsPerBlock>>>(devA, devB, devC, n);
+    int blocksX = (n + s_TileSize * s_VectorWidth - 1) / (s_TileSize * s_VectorWidth);
+    int blocksY = (n + s_TileSize - 1) / s_TileSize;
+    dim3 grid(blocksX, blocksY);
+    dim3 threadsPerBlock(s_TileSize / s_VectorWidth, s_TileSize);    
+    OptimizedGemm<<<grid, threadsPerBlock>>>(devA, devB, devC, n);
     cudaDeviceSynchronize();
 
     std::vector<float> c(dataSize);

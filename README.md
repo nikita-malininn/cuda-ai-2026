@@ -400,8 +400,10 @@ One may use numba or C strings to write CUDA kernels.
 |default|novozhilov_mikhail|0.1650|14|
 |default|zinoviev_vladimir|0.1664|5|
 |default|vikhrev_ivan|0.1686|12|
+|default|ermilov_dmitry|0.1713|16|
 |default|znamenskiy_mikhail|0.1723|7|
 |default|pigasin_dmitry|0.1725|6|
+|default|malinin_nikita|0.1738|17|
 |default|pinegina_natalia|0.2212|11|
 |default|lukicheva_polina|0.2277|10|
 |default|korobeynikov_aleksey|0.3856|13|
@@ -417,7 +419,9 @@ One may use numba or C strings to write CUDA kernels.
 |default|vikhrev_ivan|0.1559|11|
 |default|zvorykin_aleksandr|0.1598|8|
 |default|zinoviev_vladimir|0.1624|5|
+|default|malinin_nikita|0.1624|18|
 |default|znamenskiy_mikhail|0.1648|6|
+|default|ermilov_dmitry|0.1654|17|
 |default|zemskov_roman|0.1664|10|
 |default|lobanova_elizaveta|0.1671|3|
 |default|chervyakov_ivan|0.1709|9|
@@ -448,9 +452,10 @@ One may use numba or C strings to write CUDA kernels.
 |default|chekmaryov_petr|0.1661|3|
 |default|pinegina_natalia|0.1664|7|
 |default|chervyakov_ivan|0.1678|12|
-|default|pigasin_dmitry|0.2576|11|
+|default|pigasin_dmitry|0.1866|11|
+|default|ermilov_dmitry|0.1968|13|
 |**REF**|**REF**|**0.5748**|**-**|
-|default|zvorykin_aleksandr|BUILD FAILED|-|
+|default|zvorykin_aleksandr|TEST FAILED|-|
 
 ## 4_block_gemm_cuda (4096 elements)
 |Group|Name|Result|Rank|
@@ -460,13 +465,17 @@ One may use numba or C strings to write CUDA kernels.
 |**FAST**|**FAST**|**0.0695**|**-**|
 |default|zinoviev_vladimir|0.1237|2|
 |default|lobanova_elizaveta|0.1244|3|
+|default|vikhrev_ivan|0.1270|11|
+|default|pigasin_dmitry|0.1279|12|
 |default|pinegina_natalia|0.1321|7|
+|default|ermilov_dmitry|0.1326|13|
 |default|chekmaryov_petr|0.1329|4|
 |default|smirnov_denis|0.1336|1|
 |default|rodygin_vadim|0.1354|9|
 |default|znamenskiy_mikhail|0.1707|5|
 |default|chervyakov_ivan|0.1782|10|
 |**REF**|**REF**|**0.2981**|**-**|
+|default|zvorykin_aleksandr|TEST FAILED|-|
 
 ## 5_gemm_cublas (4096 elements)
 |Group|Name|Result|Rank|
@@ -475,16 +484,19 @@ One may use numba or C strings to write CUDA kernels.
 |default|pisarevsky_vadim|0.0372|4|
 |default|lobanova_elizaveta|0.0375|6|
 |default|znamenskiy_mikhail|0.0379|3|
+|default|pigasin_dmitry|0.0388|9|
 |**FAST**|**FAST**|**0.0388**|**-**|
 |default|zemskov_roman|0.0412|7|
 |default|smirnov_denis|0.0438|1|
 |default|chervyakov_ivan|0.0449|8|
 |**REF**|**REF**|**0.0467**|**-**|
 |default|pinegina_natalia|0.0469|5|
+|default|zvorykin_aleksandr|BUILD FAILED|-|
 
 ## 6_softmax_cuda (8192x16384 elements)
 |Group|Name|Result|Rank|
 |-----|----|------|----|
+|default|lobanova_elizaveta|0.1226|6|
 |**FAST**|**FAST**|**0.1318**|**-**|
 |default|zinoviev_vladimir|0.1590|2|
 |default|smirnov_denis|0.1727|1|
@@ -506,23 +518,25 @@ One may use numba or C strings to write CUDA kernels.
 |Group|Name|Passed|Score|
 |-----|----|------|-----|
 |default|belov_dmitry|1/7|44|
-|default|chekmaryov_petr|4/7|214|
-|default|chervyakov_ivan|5/7|243|
+|default|chekmaryov_petr|4/7|209|
+|default|chervyakov_ivan|5/7|237|
+|default|ermilov_dmitry|4/7|167|
 |default|kireev_daniil|0/7|0|
-|default|korobeynikov_aleksey|2/7|77|
+|default|korobeynikov_aleksey|2/7|73|
 |default|kryukov_dmitry|0/7|0|
-|default|lobanova_elizaveta|5/7|294|
-|default|lukicheva_polina|2/7|89|
-|default|novozhilov_mikhail|2/7|84|
-|default|pigasin_dmitry|3/7|133|
-|default|pinegina_natalia|6/7|300|
-|default|pisarevsky_vadim|6/7|350|
-|default|rodygin_vadim|3/7|135|
-|default|smirnov_denis|**7/7**|**417**|
-|default|vikhrev_ivan|3/7|147|
-|default|zemskov_roman|4/7|217|
-|default|zinoviev_vladimir|**7/7**|**422**|
-|default|znamenskiy_mikhail|6/7|327|
+|default|lobanova_elizaveta|6/7|351|
+|default|lukicheva_polina|2/7|85|
+|default|malinin_nikita|2/7|79|
+|default|novozhilov_mikhail|2/7|82|
+|default|pigasin_dmitry|5/7|230|
+|default|pinegina_natalia|6/7|292|
+|default|pisarevsky_vadim|6/7|347|
+|default|rodygin_vadim|3/7|130|
+|default|smirnov_denis|**7/7**|**410**|
+|default|vikhrev_ivan|4/7|197|
+|default|zemskov_roman|4/7|214|
+|default|zinoviev_vladimir|**7/7**|**421**|
+|default|znamenskiy_mikhail|6/7|321|
 |default|zvorykin_aleksandr|2/7|109|
 
 Passed: 2
