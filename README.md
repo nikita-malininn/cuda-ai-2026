@@ -515,6 +515,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|pigasin_dmitry|0.1850|3|
 |**REF**|**REF**|**0.1930**|**-**|
 |default|smirnov_denis|0.2060|1|
+|default|pinegina_natalia|RUN FAILED|-|
 
 # Tasks Done
 ## default
