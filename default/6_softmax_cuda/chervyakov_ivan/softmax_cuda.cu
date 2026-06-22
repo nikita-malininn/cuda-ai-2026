@@ -7,7 +7,7 @@
 
 #include "softmax_cuda.h"
 
-constexpr int BLOCK_SIZE_SM_K = 256;
+constexpr int BLOCK_SIZE_SM_K = 32;
 
 __device__ float reduce_max(float value, float *buffer)
 {
@@ -45,7 +45,7 @@ __device__ float reduce_sum(float value, float *buffer)
     return buffer[0];
 }
 
-__global__ void SoftmaxKernel(const float *input, float *output, int row_size, int col_size)
+__global__ void SoftmaxKernel(const float *input, float *output, int row_size)
 {
     __shared__ float buffer[BLOCK_SIZE_SM_K];
 
@@ -102,7 +102,7 @@ std::vector<float> SoftmaxCUDA(const std::vector<float> &input, int row_count)
 
     cudaMemcpy(devInput, input_data, mem_size, cudaMemcpyHostToDevice);
 
-    SoftmaxKernel<<<row_count, BLOCK_SIZE_SM_K>>>(devInput, devOutput, row_count, row_size);
+    SoftmaxKernel<<<row_count, BLOCK_SIZE_SM_K>>>(devInput, devOutput, row_size);
 
     t.join();
 
