@@ -1,0 +1,4 @@
+/home/crazyproger/sandbox/cuda-ai-2026/default/4_block_gemm_cuda/putilin_artyom/block_gemm_cuda.cu:1:10: fatal error: naive_gemm_cuda.h: No such file or directory
+    1 | #include "naive_gemm_cuda.h"
+      |          ^~~~~~~~~~~~~~~~~~~
+compilation terminated.
