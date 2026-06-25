@@ -467,6 +467,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|vikhrev_ivan|0.1614|9|
 |default|malinin_nikita|0.1645|15|
 |default|korobeynikov_aleksey|0.1656|14|
+|default|putilin_artyom|0.1661|23|
 |default|chekmaryov_petr|0.1661|3|
 |default|novozhilov_mikhail|0.1661|20|
 |default|pinegina_natalia|0.1664|7|
@@ -478,7 +479,6 @@ One may use numba or C strings to write CUDA kernels.
 |default|lukicheva_polina|0.2727|19|
 |default|suchkov_vladislav|0.5691|18|
 |**REF**|**REF**|**0.5748**|**-**|
-|default|putilin_artyom|TEST FAILED|-|
 
 ## 4_block_gemm_cuda (4096 elements)
 |Group|Name|Result|Rank|
@@ -503,7 +503,7 @@ One may use numba or C strings to write CUDA kernels.
 |**REF**|**REF**|**0.2981**|**-**|
 |default|zvorykin_aleksandr|TEST FAILED|-|
 |default|malinin_nikita|TEST FAILED|-|
-|default|putilin_artyom|BUILD FAILED|-|
+|default|putilin_artyom|TEST FAILED|-|
 
 ## 5_gemm_cublas (4096 elements)
 |Group|Name|Result|Rank|
@@ -566,30 +566,31 @@ One may use numba or C strings to write CUDA kernels.
 |Group|Name|Passed|Score|
 |-----|----|------|-----|
 |default|belov_dmitry|1/7|41|
-|default|chekmaryov_petr|**7/7**|**333**|
-|default|chervyakov_ivan|**7/7**|**324**|
-|default|ermilov_dmitry|**7/7**|**320**|
+|default|chekmaryov_petr|**7/7**|**332**|
+|default|chervyakov_ivan|**7/7**|**323**|
+|default|ermilov_dmitry|**7/7**|**319**|
 |default|kireev_daniil|0/7|0|
 |default|korobeynikov_aleksey|3/7|102|
 |default|kozlov_mikhail|3/7|113|
 |default|kryukov_dmitry|2/7|64|
 |default|lobanova_elizaveta|**7/7**|**398**|
-|default|lukicheva_polina|4/7|137|
+|default|lukicheva_polina|4/7|136|
 |default|malinin_nikita|4/7|156|
-|default|novozhilov_mikhail|4/7|140|
-|default|pigasin_dmitry|**7/7**|**332**|
-|default|pinegina_natalia|**7/7**|**314**|
+|default|novozhilov_mikhail|4/7|139|
+|default|pigasin_dmitry|**7/7**|**331**|
+|default|pinegina_natalia|**7/7**|**313**|
 |default|pisarevsky_vadim|6/7|336|
-|default|putilin_artyom|2/7|54|
+|default|pushchin_alexey|0/7|0|
+|default|putilin_artyom|3/7|84|
 |default|rodygin_vadim|3/7|119|
-|default|salnikov_nikolay|3/7|100|
+|default|salnikov_nikolay|3/7|99|
 |default|smirnov_denis|**7/7**|**388**|
-|default|suchkov_vladislav|3/7|73|
+|default|suchkov_vladislav|3/7|72|
 |default|vikhrev_ivan|5/7|232|
 |default|volkovskiy_pavel|1/7|21|
 |default|zemskov_roman|**7/7**|**358**|
 |default|zinoviev_vladimir|**7/7**|**411**|
-|default|zlobin_george|**7/7**|**284**|
+|default|zlobin_george|**7/7**|**283**|
 |default|znamenskiy_mikhail|**7/7**|**351**|
 |default|zvorykin_aleksandr|5/7|233|
 
