@@ -1,67 +1,64 @@
 #include "block_gemm_cuda.h"
+
 #include <cuda/cmath>
 
 #define BLOCK_SIZE 16
-#define BLOCK_SIZE_DOUBLE BLOCK_SIZE * BLOCK_SIZE
 
-__global__ void BlockGemmCUDAImpl(float *a, float *b, float *c, int n)
-{
-    int t_x = threadIdx.y;
-    int t_y = threadIdx.x;
-    int row = threadIdx.y + blockIdx.y * blockDim.y;
-    int col = threadIdx.x + blockIdx.x * blockDim.x;
+__global__ void BlockGemmCUDAImpl(const float *a, const float *b, float *c, int n) {
+    __shared__ float blockA[BLOCK_SIZE * BLOCK_SIZE];
+    __shared__ float blockB[BLOCK_SIZE * BLOCK_SIZE];
 
-    __shared__ float blockA[BLOCK_SIZE_DOUBLE];
-    __shared__ float blockB[BLOCK_SIZE_DOUBLE];
+    int threadX = threadIdx.x;
+    int threadY = threadIdx.y;
+    int x = blockIdx.x * BLOCK_SIZE + threadX;
+    int y = blockIdx.y * BLOCK_SIZE + threadY;
 
-    float sum = 0;
-
-    for (int i = 0; i < gridDim.x; ++i)
-    {
-        blockA[t_x * BLOCK_SIZE + t_y] = a[row * n + i * BLOCK_SIZE + t_y];
-        blockB[t_x * BLOCK_SIZE + t_y] = b[(i * BLOCK_SIZE + t_x) * n + col];
+    float sum = 0.0f;
+    for (int block = 0; block < gridDim.x; ++block) {
+        blockA[threadY * BLOCK_SIZE + threadX] = a[y * n + block * BLOCK_SIZE + threadX];
+        blockB[threadY * BLOCK_SIZE + threadX] = b[(block * BLOCK_SIZE + threadY) * n + x];
         __syncthreads();
 
-        for (int k = 0; k < BLOCK_SIZE; ++k)
-        {
-            sum += blockA[t_x * BLOCK_SIZE + k] * blockB[k * BLOCK_SIZE + t_y];
+        for (int k = 0; k < BLOCK_SIZE; ++k) {
+            sum += blockA[threadY * BLOCK_SIZE + k] * blockB[k * BLOCK_SIZE + threadX];
         }
         __syncthreads();
     }
-    c[row * n + col] = sum;
+    c[y * n + x] = sum;
 }
 
 std::vector<float> BlockGemmCUDA(const std::vector<float>& a,
                                  const std::vector<float>& b,
                                  int n) {
-    int size = a.size();
-    int bytesSize = n * n * sizeof(float);
+    const int size = a.size();
+    const int bSize = size * sizeof(float);
 
-    float* gpuBufferA = nullptr;
-    float* gpuBufferB = nullptr;
-    float* gpuBufferC = nullptr;
+    float* cHostPtr = nullptr;
+    float* aDevicePtr = nullptr;
+    float* bDevicePtr = nullptr;
+    float* cDevicePtr = nullptr;
 
-    cudaMalloc(&gpuBufferA, bytesSize);
-    cudaMalloc(&gpuBufferB, bytesSize);
-    cudaMalloc(&gpuBufferC, bytesSize);
+    cudaMalloc(&aDevicePtr, bSize);
+    cudaMalloc(&bDevicePtr, bSize);
+    cudaMalloc(&cDevicePtr, bSize);
 
-    cudaMemcpy(gpuBufferA, a.data(), bytesSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(gpuBufferB, b.data(), bytesSize, cudaMemcpyHostToDevice);
-    cudaMemset(gpuBufferC, 0, bytesSize);
+    cudaMemcpy(aDevicePtr, a.data(), bSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(bDevicePtr, b.data(), bSize, cudaMemcpyHostToDevice);
 
-    dim3 threadsDim(BLOCK_SIZE, BLOCK_SIZE);
-    dim3 blocksDim(n / BLOCK_SIZE, n / BLOCK_SIZE);
-
-    BlockGemmCUDAImpl<<<blocksDim, threadsDim>>>(gpuBufferA, gpuBufferB, gpuBufferC, n);
+    constexpr int nThreads = BLOCK_SIZE;
+    int blocks = n / nThreads;
+    dim3 threadsDim(nThreads, nThreads);
+    dim3 blocksDim(blocks, blocks);
+    BlockGemmCUDAImpl<<<blocksDim, threadsDim>>>(aDevicePtr, bDevicePtr, cDevicePtr, n);
 
     std::vector<float> c(size);
-    float* cData = c.data();
+    cHostPtr = c.data();
 
     cudaDeviceSynchronize();
-    cudaMemcpy(cData, gpuBufferC, bytesSize, cudaMemcpyDeviceToHost);
-    cudaFree(gpuBufferA);
-    cudaFree(gpuBufferB);
-    cudaFree(gpuBufferC);
+    cudaMemcpy(cHostPtr, cDevicePtr, bSize, cudaMemcpyDeviceToHost);
+    cudaFree(aDevicePtr);
+    cudaFree(bDevicePtr);
+    cudaFree(cDevicePtr);
 
     return c;
 }
