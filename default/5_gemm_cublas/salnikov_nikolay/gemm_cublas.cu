@@ -39,8 +39,3 @@ std::vector<float> GemmCUBLAS(const std::vector<float>& a,
 
     return c;
 }
-
-int main()
-{
-    return 0;
-}
