@@ -12,44 +12,28 @@
 
 __global__ void tiled_matrix_mul_kernel(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, int N)
 {
-    __shared__ float tileA[TILE_DIM][TILE_DIM];
-    __shared__ float tileB[TILE_DIM][TILE_DIM];
+    __shared__ float tileA[TILE_DIM*TILE_DIM];
+    __shared__ float tileB[TILE_DIM*TILE_DIM];
 
-    int tx = threadIdx.x;
     int ty = threadIdx.y;
+    int tx = threadIdx.x;
 
-    int row = blockIdx.y * TILE_DIM + ty;
-    int col = blockIdx.x * TILE_DIM + tx;
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
 
     float sum = 0.0f;
-    int numTiles = (N + TILE_DIM - 1) / TILE_DIM;
 
-    for (int t = 0; t < numTiles; ++t)
+    for (int iBlock = 0; iBlock < gridDim.x; ++iBlock)
     {
-        if (row < N && (t * TILE_DIM + tx) < N)
-        {
-            tileA[ty][tx] = A[row * N + (t * TILE_DIM + tx)];
-        }
-        else
-        {
-            tileA[ty][tx] = 0.0f;
-        }
-
-        if (col < N && (t * TILE_DIM + ty) < N)
-        {
-            tileB[ty][tx] = B[(t * TILE_DIM + ty) * N + col];
-        }
-        else
-        {
-            tileB[ty][tx] = 0.0f;
-        }
+        tileA[ty*TILE_DIM+tx] = A[row*N+(iBlock*TILE_DIM+tx)];
+        tileB[ty*TILE_DIM+tx] = B[(iBlock*TILE_DIM+ty)*N+col];
 
         __syncthreads();
 
         #pragma unroll
-        for (int k = 0; k < TILE_DIM; ++k)
+        for (int i = 0; i < TILE_DIM; ++i)
         {
-            sum += tileA[ty][k] * tileB[k][tx];
+            sum += tileA[ty*TILE_DIM+i] * tileB[i*TILE_DIM+tx];
         }
 
         __syncthreads();
@@ -57,8 +41,10 @@ __global__ void tiled_matrix_mul_kernel(const float* __restrict__ A, const float
 
     if (row < N && col < N)
     {
-        C[row * N + col] = sum;
+        C[row*N+col] = sum;
     }
+
+     __syncthreads();
 }
 
 std::vector<float> BlockGemmCUDA(const std::vector<float>& a, const std::vector<float>& b, int n)
@@ -66,6 +52,8 @@ std::vector<float> BlockGemmCUDA(const std::vector<float>& a, const std::vector<
     size_t N = n * n;
     size_t mtxSize = N * sizeof(float);
     std::vector<float> c(N);
+
+    size_t sharedMemBytes = 2 * TILE_DIM * TILE_DIM * sizeof(float);
 
     float *a_ptr = nullptr;
     float *b_ptr = nullptr;
@@ -81,7 +69,7 @@ std::vector<float> BlockGemmCUDA(const std::vector<float>& a, const std::vector<
     dim3 threadsPerBlock(TILE_DIM, TILE_DIM);
     dim3 blocksPerGrid((N + TILE_DIM - 1) / TILE_DIM, (N + TILE_DIM - 1) / TILE_DIM);
 
-    tiled_matrix_mul_kernel<<<threadsPerBlock, blocksPerGrid>>>(a_ptr, b_ptr, c_ptr, n);
+    tiled_matrix_mul_kernel<<<threadsPerBlock, blocksPerGrid, sharedMemBytes>>>(a_ptr, b_ptr, c_ptr, n);
 
     cudaDeviceSynchronize();
 
