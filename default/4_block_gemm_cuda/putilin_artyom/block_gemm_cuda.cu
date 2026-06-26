@@ -69,7 +69,7 @@ std::vector<float> BlockGemmCUDA(const std::vector<float>& a, const std::vector<
     dim3 threadsPerBlock(TILE_DIM, TILE_DIM);
     dim3 blocksPerGrid((N + TILE_DIM - 1) / TILE_DIM, (N + TILE_DIM - 1) / TILE_DIM);
 
-    tiled_matrix_mul_kernel<<<threadsPerBlock, blocksPerGrid, sharedMemBytes>>>(a_ptr, b_ptr, c_ptr, n);
+    tiled_matrix_mul_kernel<<<blocksPerGrid, threadsPerBlock, sharedMemBytes>>>(a_ptr, b_ptr, c_ptr, n);
 
     cudaDeviceSynchronize();
 
