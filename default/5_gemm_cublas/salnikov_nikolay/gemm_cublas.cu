@@ -38,4 +38,4 @@ std::vector<float> GemmCUBLAS(const std::vector<float>& a,
     cublasDestroy(cublas);
 
     return c;
-}
+} //
