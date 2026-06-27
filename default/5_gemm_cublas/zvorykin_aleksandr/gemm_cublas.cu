@@ -10,9 +10,9 @@ std::vector<float> GemmCUBLAS(const std::vector<float>& a,
     // Place your implementation here
     static cublasHandle_t cublas_handle = nullptr;
     static cudaStream_t stream = nullptr;
-    static float* deviceA = nullptr;
-    static float* deviceB = nullptr;
-    static float* deviceC = nullptr;
+    static float* device_a = nullptr;
+    static float* device_b = nullptr;
+    static float* device_c = nullptr;
     static int last_n = 0;
     static bool initialized = false;
   
@@ -25,32 +25,33 @@ std::vector<float> GemmCUBLAS(const std::vector<float>& a,
       initialized = true;
     }
   
-    const size_t dataSize = sizeof(float) * static_cast<size_t>(n) * n;
+    const size_t data_size = sizeof(float) * static_cast<size_t>(n) * n;
   
     if (n != last_n)
     {
-      if (deviceA)
+      if (device_a)
       {
-        cudaFree(deviceA);
-        cudaFree(deviceB);
-        cudaFree(deviceC);
+        cudaFree(device_a);
+        cudaFree(device_b);
+        cudaFree(device_c);
       }
-      cudaMalloc(&deviceA, dataSize);
-      cudaMalloc(&deviceB, dataSize);
-      cudaMalloc(&deviceC, dataSize);
+      cudaMalloc(&device_a, data_size);
+      cudaMalloc(&device_b, data_size);
+      cudaMalloc(&device_c, data_size);
       last_n = n;
     }
   
     const float alpha = 1.0f;
     const float beta = 0.0f;
   
-    cudaMemcpy(deviceA, a.data(), dataSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(deviceB, b.data(), dataSize, cudaMemcpyHostToDevice);
-    cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n, n, n,
-                &alpha, deviceA, n, deviceB, n, &beta, deviceC, n);
+    cudaMemcpy(device_a, a.data(), data_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(device_b, b.data(), data_size, cudaMemcpyHostToDevice);
+  
+    cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_T, n, n, n,
+                &alpha, device_a, n, device_b, n, &beta, device_c, n);
   
     std::vector<float> result(static_cast<size_t>(n) * n);
-    cudaMemcpy(result.data(), deviceC, dataSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(result.data(), device_c, data_size, cudaMemcpyDeviceToHost);
   
     return result;
 }
