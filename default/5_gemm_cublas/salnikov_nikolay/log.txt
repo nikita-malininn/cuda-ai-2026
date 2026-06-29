@@ -1,3 +1,0 @@
-/usr/bin/ld: /tmp/tmpxft_000009ec_00000000-12_main.o: in function `main':
-main.cpp:(.text.startup+0x0): multiple definition of `main'; /tmp/tmpxft_000009ec_00000000-11_gemm_cublas.o:tmpxft_000009ec_00000000-6_gemm_cublas.cudafe1.cpp:(.text.startup+0x0): first defined here
-collect2: error: ld returned 1 exit status
